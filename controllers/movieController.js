@@ -21,9 +21,31 @@ const index = (req, res) => {
 };
 
 const show = (req, res) => {
-    res.json({
-        message: "show dei movies"
-    })
+    const id = req.params.id;
+    const sql = "SELECT * FROM `movies` WHERE `id` = ?";
+
+    dbConnection.query(sql, [id], (err, result) => {
+        if (err) {
+            const resObj = {
+                message: "Errore interno del server"
+            }
+            if (process.env.ENVIRONMENT === "development") {
+                resObj.detail = err.stack;
+            }
+            return res.status(500).json(resObj);
+        };
+
+        //CONTROLLARE SE LA CORRISPONDENZA è STATA TROVATA
+        if(result.length === 0) {
+            return res.status(404).json({
+                status: "fail",
+                message: "Film non trovato",
+            });
+        }
+        return res.json({
+            data: result[0],
+        })
+    });
 };
 
 module.exports = {
