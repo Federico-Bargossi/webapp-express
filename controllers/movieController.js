@@ -26,13 +26,19 @@ const index = (req, res, next) => {
 
 const show = (req, res, next) => {
     const id = req.params.id;
-    const sql = "SELECT * FROM `movies` WHERE `id` = ?";
+    const sql = `
+    SELECT movies.*, CAST(AVG(reviews.vote) as FLOAT) as vote_avg
+    FROM movies
+    JOIN reviews
+    ON reviews.movie_id = movies.id
+    WHERE movies.id = ?;
+    `
     const sqlReviews = `
-       SELECT * 
-       FROM reviews
-       JOIN movies
-       ON movies . id = reviews . movie_id
-       WHERE movies . id = ?
+    SELECT * 
+    FROM reviews
+    JOIN movies
+    ON movies . id = reviews . movie_id
+    WHERE movies . id = ?
     `
 
     dbConnection.query(sql, [id], (err, result) => {
