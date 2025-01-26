@@ -7,6 +7,8 @@ const errorHandlers = require("./middleware/errorsHandlers")
 const app = express();
 const port = process.env.SERVER_PORT;
 
+//MIDLEWARE PER RENDERE LA CARTELLA PUBBLICA ACCESSIBILE
+app.use(express.static("public"))
 
 //DEFINISCO I GRUPPI DELLE ROTTE
 app.use("/movies", movieRouter)

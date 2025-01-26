@@ -1,11 +1,21 @@
 const dbConnection = require("../data/dbConnection")
 
-const index = (req, res , next) => {
-    const sql = "SELECT * FROM `movies`";
+const index = (req, res, next) => {
+    //prelevo query string param per la richerca
+    const filters = req.query;
+    console.log(filters);
 
-    dbConnection.query(sql, (err, movies) => {
-        if(err) {
-            return next(new Error("Errore inteno del server"));
+    let sql = "SELECT * FROM `movies`"
+    const params = [];
+
+    if (filters.search) {
+        sql += `WHERE title LIKE ?;`;
+
+        params.push(`%${filters.search}%`);
+    }
+    dbConnection.query(sql, params, (err, movies) => {
+        if (err) {
+            return next(new Error("Errore interno del server"));
         }
         return res.status(200).json({
             status: "success",
@@ -14,7 +24,7 @@ const index = (req, res , next) => {
     });
 };
 
-const show = (req, res , next) => {
+const show = (req, res, next) => {
     const id = req.params.id;
     const sql = "SELECT * FROM `movies` WHERE `id` = ?";
     const sqlReviews = `
@@ -26,9 +36,9 @@ const show = (req, res , next) => {
     `
 
     dbConnection.query(sql, [id], (err, result) => {
-      if(err){
-        return next(new Error("Errore interno del server"));
-      }
+        if (err) {
+            return next(new Error("Errore interno del server"));
+        }
 
         //CONTROLLARE SE LA CORRISPONDENZA è STATA TROVATA
         if (result.length === 0) {
@@ -38,7 +48,7 @@ const show = (req, res , next) => {
             });
         }
         //PRENDIAMO LE RECENSIONI 
-        dbConnection.query(sqlReviews, [id], (err, reviews) =>{
+        dbConnection.query(sqlReviews, [id], (err, reviews) => {
             if (err) {
                 const resObj = {
                     message: "Errore interno del server"
