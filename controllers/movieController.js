@@ -7,12 +7,26 @@ const index = (req, res, next) => {
 
     let sql = "SELECT * FROM `movies`"
     const params = [];
+    const condition = [];
 
     if (filters.search) {
-        sql += `WHERE title LIKE ?;`;
+        condition.push("title LIKE ?");
 
         params.push(`%${filters.search}%`);
     }
+
+    if(filters.genre) {
+        condition.push("genre = ?");
+        
+        params.push(filters.genre);
+    }
+
+    if(condition.length > 0) {
+        sql += `WHERE ${condition.join(" AND ")}`
+        console.log(sql)
+        console.log(params)
+    }
+
     dbConnection.query(sql, params, (err, movies) => {
         if (err) {
             return next(new Error("Errore interno del server"));
