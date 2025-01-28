@@ -47,23 +47,23 @@ const index = (req, res, next) => {
 };
 
 const show = (req, res, next) => {
-    const id = req.params.id;
+    const slug = req.params.slug;
     const sql = `
     SELECT movies.*, CAST(AVG(reviews.vote) as FLOAT) as vote_avg
     FROM movies
     LEFT JOIN reviews
     ON reviews.movie_id = movies.id
-    WHERE movies.id = ?;
+    WHERE movies.slug = ?;
     `
     const sqlReviews = `
     SELECT * 
     FROM reviews
     JOIN movies
     ON movies . id = reviews . movie_id
-    WHERE movies . id = ?
+    WHERE movies . slug = ?
     `
 
-    dbConnection.query(sql, [id], (err, result) => {
+    dbConnection.query(sql, [slug], (err, result) => {
         if (err) {
             return next(new Error("Errore interno del server"));
         }
@@ -76,7 +76,7 @@ const show = (req, res, next) => {
             });
         }
         //PRENDIAMO LE RECENSIONI 
-        dbConnection.query(sqlReviews, [id], (err, reviews) => {
+        dbConnection.query(sqlReviews, [slug], (err, reviews) => {
             if (err) {
                 const resObj = {
                     message: "Errore interno del server"
