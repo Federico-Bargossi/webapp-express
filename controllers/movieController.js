@@ -1,3 +1,4 @@
+const { query } = require("express");
 const dbConnection = require("../data/dbConnection")
 
 const index = (req, res, next) => {
@@ -15,13 +16,20 @@ const index = (req, res, next) => {
         params.push(`%${filters.search}%`);
     }
 
-    if(filters.genre) {
-        condition.push("genre = ?");
-        
-        params.push(filters.genre);
+    //  if (filters.genre) {
+    //    condition.push("genre = ?");
+    //
+    //      params.push(filters.genre);
+    //}
+
+    for (const key in req.query) {
+        if (key !== "search") {
+            condition.push(`${key} = ?`);
+            params.push(req.query[key]);
+        }
     }
 
-    if(condition.length > 0) {
+    if (condition.length > 0) {
         sql += `WHERE ${condition.join(" AND ")}`
         console.log(sql)
         console.log(params)
