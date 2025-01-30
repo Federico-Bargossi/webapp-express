@@ -16,6 +16,9 @@ app.use(cors({
 //MIDLEWARE PER RENDERE LA CARTELLA PUBBLICA ACCESSIBILE
 app.use(express.static("public"))
 
+//MIDDLEWARE CHE FA IL PARSE DI JSON
+app.use(express.json());
+
 //DEFINISCO I GRUPPI DELLE ROTTE
 app.use("/movies", movieRouter)
 

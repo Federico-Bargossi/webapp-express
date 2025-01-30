@@ -97,7 +97,64 @@ const show = (req, res, next) => {
     })
 };
 
+const storeReview = (req,res,next) => {
+    const id = req.params.id
+    const {name, vote, text} = req.body
+    const movieId = req.params.id
+
+    //validazione
+    if(isNaN(vote) || vote < 0 || vote > 5) {
+        res.status(400).json({
+            status: "fail",
+            message: "il voto deve essere un valore numerico tra 0 e 5",
+        })
+    }
+
+    //prima di fare la query di inserimento ci assicuriamo che esista il film
+    const movieSql = `
+    SELECT *
+    FROM movies
+    WHERE id = ?
+    `;
+
+    dbConnection.query(movieSql, [movieId], (err, result) =>{
+        if(err) {
+            return next(new Error("id del libro non trovato"));
+        }
+        if(result.length === 0) {
+            return res.status(404).json({
+                status: "fail",
+                messagge: "film non trovato"
+            })
+        }
+    })
+
+    //se è andato tutto bene allora il film esiste, possiamo aggiungere la recensione
+    
+    const sql = `
+    INSERT INTO reviews(movie_id, name, vote, text)
+    VALUES (?, ?, ?, ?);
+    `;
+
+    dbConnection.query(sql, [id, name, vote, text], (err, result) => {
+        if(err) {
+            return next(new Error("Database query failed") )
+        }
+
+        res.status(201).json({
+            status: "success",
+            message: "Recensione aggiunta"
+        })
+    })
+}
+
+const store = (req,res,next) => {
+    console.log("Salvataggio di un film")
+}
+
 module.exports = {
     index,
-    show
+    show,
+    storeReview,
+    store
 }
